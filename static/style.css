@@ -1,0 +1,118 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 20px;
+    background: #f4f4f4;
+}
+
+/* FORM */
+.form-section {
+    margin-bottom: 20px;
+}
+
+select, input {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 8px 14px;
+    border-radius: 4px;
+    border: none;
+    background: #2F5E7A;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1f3d52;
+}
+
+.clear-btn {
+    padding: 8px 14px;
+    background: red;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+/* RECEIPT */
+.receipt {
+    width: 850px;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 6px;
+}
+
+.customer-name {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #000;
+}
+
+th, td {
+    border: 1px solid #000;
+    padding: 6px 8px;
+    font-size: 14px;
+}
+
+/* HEADER */
+th {
+    background: #2F5E7A;
+    color: white;
+    text-align: left;
+}
+
+/* FIXED COLUMN COLORS */
+.qty {
+    background-color: #F1D98F;
+    text-align: center;
+    font-weight: bold;
+}
+
+.name-row td {
+    background-color: #AFC6DA;
+    font-weight: bold;
+}
+
+.subsidy-row td {
+    background-color: #D9E1F2;
+    font-weight: bold;
+}
+
+.final-row td {
+    background-color: #FFF200;
+    font-weight: bold;
+}
+
+.final-amount {
+    color: #D40000;
+    text-align: right;
+    font-weight: bold;
+}
+
+/* PRINT */
+@media print {
+    .form-section {
+        display: none;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .receipt {
+        width: 100%;
+    }
+}@media print {
+    th:last-child, td:last-child { display:none; } 
+}

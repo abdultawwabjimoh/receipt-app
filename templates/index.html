@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receipt</title>
+
+    <!-- Excel Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Calibri:wght@400;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Calibri, Arial, sans-serif;
+            margin: 0;
+        }
+
+        .form-section {
+            position: sticky;
+            top: 0;
+            background: #ffffff;
+            padding: 10px 15px;
+            z-index: 1000;
+            border-bottom: 2px solid #999;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 8px 14px;
+            background:#2F5E7A;
+            color:white;
+            border:none;
+            font-size:16px;
+            cursor:pointer;
+            font-weight:700;
+        }
+
+        .clear-btn {
+            padding: 8px 14px;
+            background:red;
+            color:white;
+            text-decoration:none;
+            font-size:16px;
+            font-weight:700;
+            margin-left:5px;
+        }
+
+        /* RECEIPT */
+        .receipt{
+    width:543px;
+
+    margin:auto;
+}
+        .customer-name {
+            text-align:center;
+            font-size:22px;
+            font-weight:800;
+            margin-bottom: 5px;
+        }
+
+        table {
+            width:100%;
+            border-collapse:collapse;
+            font-size:18px;
+        }
+
+        th, td {
+       border: 0.5px solid #2c2a2a;
+
+            padding:8px;
+        }
+
+        th {
+            background:#1F4E79;
+            color:#ffffff;
+            font-weight:800;
+            text-transform:uppercase;
+        }
+
+        /* QTY COLUMN */
+        td.qty {
+            background:#F3E2A9;
+            text-align:center;
+            font-weight:800;
+        }
+
+        /* AMOUNT COLUMN */
+        td.amount {
+            text-align:right;
+            font-weight:900;
+        }
+
+        /* NAME TOTAL ROW */
+        tr.total-name td {
+            background:#9DC3E6;
+            font-weight:800;
+        }
+
+        /* SUBSIDY ROW */
+        tr.subsidy-row td {
+            background:#D9E1F2;
+            font-weight:800;
+        }
+
+        /* FINAL ROW */
+        tr.final-row td {
+            background:#FFFF00;
+            font-weight:900;
+        }
+
+        .final-amount {
+            color:red;
+            text-align:right;
+            font-weight:900;
+            font-size:20px;
+        }
+
+        @media print {
+            .form-section { display:none; }
+            th:last-child, td:last-child { display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-section">
+    <form method="POST" autocomplete="off">
+        <input type="text" id="itemSearch" placeholder="Search item..." required>
+        <div id="itemDropdown" class="dropdown-items"></div>
+        <input type="hidden" name="item_code" id="item_code">
+        <input type="number" name="qty" placeholder="Bags Qty" required min="1">
+        <button type="submit">Add</button>
+        <a href="/clear" class="clear-btn">Clear</a>
+        <button type="button" onclick="downloadReceiptImage()">Download Receipt</button>
+    </form>
+</div>
+
+<div class="receipt" id="receiptDiv">
+    <div class="customer-name">ABDUL TAWAB</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:60%;">ITEM4</th>
+                <th style="width:15%;">QTY7</th>
+                <th style="width:20%;">AMOUNT4</th>
+                <th style="width:5%;">DELETE</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% for i in cart %}
+            {% if i %}
+            <tr>
+                <td style="background-color: {{ i.bg_color }};">{{ i.description }}</td>
+                <td class="qty">{{ i.qty }}</td>
+                <td class="amount" style="background-color: {{ i.bg_color }};">
+                    {{ "{:,.0f}".format(i.amount) }}
+                </td>
+                <td>
+                    <a href="{{ url_for('delete_item', index=loop.index0) }}"
+                       style="color:red;font-weight:bold;">X</a>
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+
+        <!-- NAME TOTAL -->
+        <tr class="total-name">
+            <td>ABDUL TAWAB</td>
+            <td class="qty">{{ total_qty }}</td>
+            <td class="amount">{{ "{:,.0f}".format(total_amount) }}</td>
+            <td></td>
+        </tr>
+
+        <!-- SUBSIDY -->
+        <tr class="subsidy-row">
+            <td colspan="2">
+                TOTAL TPT SUBSIDY AT RATE (PER BAG) - N= 1700
+            </td>
+            <td class="amount">
+                {{ "{:,.0f}".format(subsidy) }}
+            </td>
+            <td></td>
+        </tr>
+
+        <!-- FINAL -->
+        <tr class="final-row">
+            <td colspan="2">
+                TO PAY AFTER TPT SUBSIDY -------->
+            </td>
+            <td class="final-amount">
+                {{ "{:,.0f}".format(final_total) }}
+            </td>
+            <td></td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+    const products = [
+        {% for p in products %}
+        { code: "{{ p.item_code }}", label: "{{ p.style }} {{ p.sizes }} {{ p.colour }} (₦{{ "{:,.0f}".format(p.bag_price) }})" },
+        {% endfor %}
+    ];
+
+    const searchInput = document.getElementById("itemSearch");
+    const dropdown = document.createElement("div");
+    dropdown.className = "dropdown-items";
+    dropdown.style.position = "absolute";
+    dropdown.style.border = "1px solid #ccc";
+    dropdown.style.background = "#fff";
+    dropdown.style.display = "none";
+    dropdown.style.maxHeight = "250px";
+    dropdown.style.overflowY = "auto";
+    searchInput.parentNode.insertBefore(dropdown, searchInput.nextSibling);
+
+    searchInput.addEventListener("input", function() {
+        const value = this.value.toLowerCase();
+        dropdown.innerHTML = "";
+        if (value) {
+            const filtered = products.filter(p =>
+                p.label.toLowerCase().includes(value)
+            );
+            filtered.forEach(item => {
+                const div = document.createElement("div");
+                div.textContent = item.label;
+                div.style.padding = "8px";
+                div.style.cursor = "pointer";
+                div.onclick = function() {
+                    searchInput.value = item.label;
+                    document.getElementById("item_code").value = item.code;
+                    dropdown.style.display = "none";
+                };
+                dropdown.appendChild(div);
+            });
+            dropdown.style.display = filtered.length ? "block" : "none";
+        } else {
+            dropdown.style.display = "none";
+        }
+    });
+
+    function downloadReceiptImage() {
+        const receipt = document.getElementById('receiptDiv');
+        const clone = receipt.cloneNode(true);
+
+        clone.querySelectorAll('th:last-child, td:last-child').forEach(el => el.remove());
+
+        clone.style.position = 'absolute';
+        clone.style.left = '-9999px';
+        document.body.appendChild(clone);
+
+     html2canvas(clone,{
+    width:543,
+    scale:3
+}).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'receipt.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            document.body.removeChild(clone);
+        });
+    }
+</script>
+
+</body>
+</html>
