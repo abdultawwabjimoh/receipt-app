@@ -1,16 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for
 import csv
 import os
+import shutil
 
 app = Flask(__name__)
 
 cart = []
 
-CSV_PATH = os.path.join("data", "products.csv")
+# Path to CSV stored in a writable location on Render
+PERSISTENT_CSV = os.path.join("data", "products.csv")
+
+# Ensure the 'data' folder exists (Render may allow writing there)
+os.makedirs("data", exist_ok=True)
+
+# Copy initial CSV if it doesn't exist
+if not os.path.exists(PERSISTENT_CSV):
+    shutil.copy("data/products.csv", PERSISTENT_CSV)
 
 def load_products():
     products = []
-    with open(CSV_PATH, newline='', encoding='utf-8') as file:
+    with open(PERSISTENT_CSV, newline='', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
             products.append({
@@ -86,5 +95,21 @@ def clear():
     cart = []
     return redirect(url_for("index"))
 
+# ✅ New route to upload a new CSV directly
+@app.route("/upload", methods=["GET", "POST"])
+def upload_csv():
+    if request.method == "POST":
+        f = request.files["file"]
+        f.save(PERSISTENT_CSV)
+        return redirect(url_for("index"))
+    return '''
+        <h3>Upload new CSV</h3>
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv">
+            <input type="submit" value="Upload">
+        </form>
+    '''
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Use 0.0.0.0 for Render, debug=True for local testing
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
