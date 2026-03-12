@@ -49,12 +49,21 @@
             margin-left:5px;
         }
 
+        .upload-btn {
+            padding: 8px 14px;
+            background:green;
+            color:white;
+            font-weight:700;
+            border:none;
+            cursor:pointer;
+            margin-left:5px;
+        }
+
         /* RECEIPT */
         .receipt{
-    width:543px;
-
-    margin:auto;
-}
+            width:543px;
+            margin:auto;
+        }
         .customer-name {
             text-align:center;
             font-size:22px;
@@ -69,8 +78,7 @@
         }
 
         th, td {
-       border: 0.5px solid #2c2a2a;
-
+            border: 0.5px solid #2c2a2a;
             padding:8px;
         }
 
@@ -81,32 +89,27 @@
             text-transform:uppercase;
         }
 
-        /* QTY COLUMN */
         td.qty {
             background:#F3E2A9;
             text-align:center;
             font-weight:800;
         }
 
-        /* AMOUNT COLUMN */
         td.amount {
             text-align:right;
             font-weight:900;
         }
 
-        /* NAME TOTAL ROW */
         tr.total-name td {
             background:#9DC3E6;
             font-weight:800;
         }
 
-        /* SUBSIDY ROW */
         tr.subsidy-row td {
             background:#D9E1F2;
             font-weight:800;
         }
 
-        /* FINAL ROW */
         tr.final-row td {
             background:#FFFF00;
             font-weight:900;
@@ -128,15 +131,18 @@
 <body>
 
 <div class="form-section">
-    <form method="POST" autocomplete="off">
+    <form method="POST" autocomplete="off" style="display:inline-block; vertical-align: top;">
         <input type="text" id="itemSearch" placeholder="Search item..." required>
         <div id="itemDropdown" class="dropdown-items"></div>
         <input type="hidden" name="item_code" id="item_code">
         <input type="number" name="qty" placeholder="Bags Qty" required min="1">
         <button type="submit">Add</button>
-        <a href="/clear" class="clear-btn">Clear</a>
-        <button type="button" onclick="downloadReceiptImage()">Download Receipt</button>
     </form>
+
+    <a href="/clear" class="clear-btn">Clear</a>
+    <button type="button" onclick="downloadReceiptImage()">Download Receipt</button>
+    <!-- New Upload CSV Button -->
+    <a href="/upload"><button class="upload-btn">Upload CSV</button></a>
 </div>
 
 <div class="receipt" id="receiptDiv">
@@ -169,7 +175,6 @@
             {% endif %}
         {% endfor %}
 
-        <!-- NAME TOTAL -->
         <tr class="total-name">
             <td>ABDUL TAWAB</td>
             <td class="qty">{{ total_qty }}</td>
@@ -177,7 +182,6 @@
             <td></td>
         </tr>
 
-        <!-- SUBSIDY -->
         <tr class="subsidy-row">
             <td colspan="2">
                 TOTAL TPT SUBSIDY AT RATE (PER BAG) - N= 1700
@@ -188,7 +192,6 @@
             <td></td>
         </tr>
 
-        <!-- FINAL -->
         <tr class="final-row">
             <td colspan="2">
                 TO PAY AFTER TPT SUBSIDY -------->
@@ -259,10 +262,10 @@
         clone.style.left = '-9999px';
         document.body.appendChild(clone);
 
-     html2canvas(clone,{
-    width:543,
-    scale:3
-}).then(canvas => {
+        html2canvas(clone, {
+            width: 543,
+            scale: 3
+        }).then(canvas => {
             const link = document.createElement('a');
             link.download = 'receipt.png';
             link.href = canvas.toDataURL('image/png');
