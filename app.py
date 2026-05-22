@@ -68,7 +68,8 @@ def index():
 
     total_qty = sum(i["qty"] for i in cart if i)
     total_amount = sum(i["amount"] for i in cart if i)
-    subsidy_rate = 1700
+    subsidy_rate = 2200
+    
     subsidy_total = subsidy_rate * total_qty
     final_total = total_amount - subsidy_total
 
